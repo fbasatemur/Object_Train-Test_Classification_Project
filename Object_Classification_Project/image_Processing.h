@@ -6,9 +6,17 @@
 
 int* createHistMatris(BYTE*, int, int);
 
-void tagHist(int* tagArray, int T1, int T2);
+double standardDeviation(int k, int N);
 
-int* kMeans(int* hist, std::vector <int>* vec, int T1 = 0, int T2 = 0);
+int mahalonobisDist(int k, int x, double standartDevision);
+
+void tagHistMahalonobis(int* tagArray, int T1, int T2);
+
+void tagHistEuclidean(int* tagArray, int T1, int T2);
+
+int* kMeansEuclidean(int* hist, std::vector <int>* vec, int T1 = 0, int T2 = 0);
+
+int* kMeansMahalonobis(int* hist, std::vector <int>* vec, int T1 = 0, int T2 = 0);
 
 int* dilationBinary(int* p, int W, int H, int* M, int K);
 

@@ -75,6 +75,10 @@ namespace Object_Classification_Project {
 	private: System::Windows::Forms::Label^ label3;
 	private: System::Windows::Forms::Label^ label2;
 	private: System::Windows::Forms::Label^ label1;
+	private: System::Windows::Forms::CheckBox^ checkBMahalonobis;
+	private: System::Windows::Forms::CheckBox^ checkBEuclidean;
+
+
 
 	protected:
 
@@ -91,9 +95,9 @@ namespace Object_Classification_Project {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^ chartArea5 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^ legend5 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::Series^ series5 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^ chartArea1 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^ legend1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::Series^ series1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -121,6 +125,8 @@ namespace Object_Classification_Project {
 			this->label3 = (gcnew System::Windows::Forms::Label());
 			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->checkBMahalonobis = (gcnew System::Windows::Forms::CheckBox());
+			this->checkBEuclidean = (gcnew System::Windows::Forms::CheckBox());
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->chart1))->BeginInit();
@@ -173,18 +179,18 @@ namespace Object_Classification_Project {
 			// 
 			// chart1
 			// 
-			chartArea5->Name = L"ChartArea1";
-			this->chart1->ChartAreas->Add(chartArea5);
-			legend5->Name = L"Legend1";
-			this->chart1->Legends->Add(legend5);
-			this->chart1->Location = System::Drawing::Point(810, 46);
+			chartArea1->Name = L"ChartArea1";
+			this->chart1->ChartAreas->Add(chartArea1);
+			legend1->Name = L"Legend1";
+			this->chart1->Legends->Add(legend1);
+			this->chart1->Location = System::Drawing::Point(807, 46);
 			this->chart1->Margin = System::Windows::Forms::Padding(2);
 			this->chart1->Name = L"chart1";
-			series5->ChartArea = L"ChartArea1";
-			series5->Legend = L"Legend1";
-			series5->Name = L"Hist";
-			this->chart1->Series->Add(series5);
-			this->chart1->Size = System::Drawing::Size(476, 210);
+			series1->ChartArea = L"ChartArea1";
+			series1->Legend = L"Legend1";
+			series1->Name = L"Hist";
+			this->chart1->Series->Add(series1);
+			this->chart1->Size = System::Drawing::Size(481, 196);
 			this->chart1->TabIndex = 3;
 			this->chart1->Text = L"chart1";
 			this->chart1->Click += gcnew System::EventHandler(this, &MyForm::chart1_Click_1);
@@ -298,7 +304,7 @@ namespace Object_Classification_Project {
 			this->label11->AutoSize = true;
 			this->label11->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->label11->Location = System::Drawing::Point(1109, 274);
+			this->label11->Location = System::Drawing::Point(1111, 244);
 			this->label11->Margin = System::Windows::Forms::Padding(2, 0, 2, 0);
 			this->label11->Name = L"label11";
 			this->label11->Size = System::Drawing::Size(179, 17);
@@ -309,10 +315,10 @@ namespace Object_Classification_Project {
 			// 
 			this->richTextBoxObjects->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->richTextBoxObjects->Location = System::Drawing::Point(1112, 293);
+			this->richTextBoxObjects->Location = System::Drawing::Point(1114, 263);
 			this->richTextBoxObjects->Margin = System::Windows::Forms::Padding(2);
 			this->richTextBoxObjects->Name = L"richTextBoxObjects";
-			this->richTextBoxObjects->Size = System::Drawing::Size(155, 138);
+			this->richTextBoxObjects->Size = System::Drawing::Size(155, 129);
 			this->richTextBoxObjects->TabIndex = 60;
 			this->richTextBoxObjects->Text = L"";
 			// 
@@ -321,7 +327,7 @@ namespace Object_Classification_Project {
 			this->label8->AutoSize = true;
 			this->label8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->label8->Location = System::Drawing::Point(810, 353);
+			this->label8->Location = System::Drawing::Point(807, 374);
 			this->label8->Margin = System::Windows::Forms::Padding(2, 0, 2, 0);
 			this->label8->Name = L"label8";
 			this->label8->Size = System::Drawing::Size(98, 17);
@@ -331,7 +337,7 @@ namespace Object_Classification_Project {
 			// trainingRadioButton
 			// 
 			this->trainingRadioButton->AutoSize = true;
-			this->trainingRadioButton->Location = System::Drawing::Point(810, 315);
+			this->trainingRadioButton->Location = System::Drawing::Point(807, 344);
 			this->trainingRadioButton->Margin = System::Windows::Forms::Padding(2);
 			this->trainingRadioButton->Name = L"trainingRadioButton";
 			this->trainingRadioButton->Size = System::Drawing::Size(84, 19);
@@ -343,7 +349,7 @@ namespace Object_Classification_Project {
 			// 
 			this->testRadioButton->AutoSize = true;
 			this->testRadioButton->Checked = true;
-			this->testRadioButton->Location = System::Drawing::Point(810, 275);
+			this->testRadioButton->Location = System::Drawing::Point(807, 321);
 			this->testRadioButton->Margin = System::Windows::Forms::Padding(2);
 			this->testRadioButton->Name = L"testRadioButton";
 			this->testRadioButton->Size = System::Drawing::Size(58, 19);
@@ -354,7 +360,7 @@ namespace Object_Classification_Project {
 			// 
 			// objectNameTextB
 			// 
-			this->objectNameTextB->Location = System::Drawing::Point(810, 371);
+			this->objectNameTextB->Location = System::Drawing::Point(807, 392);
 			this->objectNameTextB->Margin = System::Windows::Forms::Padding(2);
 			this->objectNameTextB->Name = L"objectNameTextB";
 			this->objectNameTextB->Size = System::Drawing::Size(155, 21);
@@ -365,7 +371,7 @@ namespace Object_Classification_Project {
 			this->label5->AutoSize = true;
 			this->label5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->label5->Location = System::Drawing::Point(976, 274);
+			this->label5->Location = System::Drawing::Point(978, 244);
 			this->label5->Margin = System::Windows::Forms::Padding(2, 0, 2, 0);
 			this->label5->Name = L"label5";
 			this->label5->Size = System::Drawing::Size(110, 17);
@@ -376,10 +382,10 @@ namespace Object_Classification_Project {
 			// 
 			this->richTextBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->richTextBox1->Location = System::Drawing::Point(979, 293);
+			this->richTextBox1->Location = System::Drawing::Point(981, 263);
 			this->richTextBox1->Margin = System::Windows::Forms::Padding(2);
 			this->richTextBox1->Name = L"richTextBox1";
-			this->richTextBox1->Size = System::Drawing::Size(129, 137);
+			this->richTextBox1->Size = System::Drawing::Size(129, 128);
 			this->richTextBox1->TabIndex = 54;
 			this->richTextBox1->Text = L"";
 			// 
@@ -388,7 +394,7 @@ namespace Object_Classification_Project {
 			this->label4->AutoSize = true;
 			this->label4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->label4->Location = System::Drawing::Point(894, 410);
+			this->label4->Location = System::Drawing::Point(1062, 397);
 			this->label4->Margin = System::Windows::Forms::Padding(2, 0, 2, 0);
 			this->label4->Name = L"label4";
 			this->label4->Size = System::Drawing::Size(33, 17);
@@ -400,7 +406,7 @@ namespace Object_Classification_Project {
 			this->label3->AutoSize = true;
 			this->label3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->label3->Location = System::Drawing::Point(810, 409);
+			this->label3->Location = System::Drawing::Point(978, 396);
 			this->label3->Margin = System::Windows::Forms::Padding(2, 0, 2, 0);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(33, 17);
@@ -412,7 +418,7 @@ namespace Object_Classification_Project {
 			this->label2->AutoSize = true;
 			this->label2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->label2->Location = System::Drawing::Point(929, 409);
+			this->label2->Location = System::Drawing::Point(1099, 396);
 			this->label2->Margin = System::Windows::Forms::Padding(2, 0, 2, 0);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(46, 17);
@@ -424,12 +430,32 @@ namespace Object_Classification_Project {
 			this->label1->AutoSize = true;
 			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->label1->Location = System::Drawing::Point(844, 409);
+			this->label1->Location = System::Drawing::Point(1012, 396);
 			this->label1->Margin = System::Windows::Forms::Padding(2, 0, 2, 0);
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(46, 17);
 			this->label1->TabIndex = 50;
 			this->label1->Text = L"label1";
+			// 
+			// checkBMahalonobis
+			// 
+			this->checkBMahalonobis->AutoSize = true;
+			this->checkBMahalonobis->Location = System::Drawing::Point(807, 282);
+			this->checkBMahalonobis->Name = L"checkBMahalonobis";
+			this->checkBMahalonobis->Size = System::Drawing::Size(152, 19);
+			this->checkBMahalonobis->TabIndex = 62;
+			this->checkBMahalonobis->Text = L"Mahalonobis Distance";
+			this->checkBMahalonobis->UseVisualStyleBackColor = true;
+			// 
+			// checkBEuclidean
+			// 
+			this->checkBEuclidean->AutoSize = true;
+			this->checkBEuclidean->Location = System::Drawing::Point(807, 257);
+			this->checkBEuclidean->Name = L"checkBEuclidean";
+			this->checkBEuclidean->Size = System::Drawing::Size(135, 19);
+			this->checkBEuclidean->TabIndex = 64;
+			this->checkBEuclidean->Text = L"Euclidean Distance";
+			this->checkBEuclidean->UseVisualStyleBackColor = true;
 			// 
 			// MyForm
 			// 
@@ -438,6 +464,8 @@ namespace Object_Classification_Project {
 			this->AutoSize = true;
 			this->BackColor = System::Drawing::SystemColors::ControlDark;
 			this->ClientSize = System::Drawing::Size(1292, 853);
+			this->Controls->Add(this->checkBEuclidean);
+			this->Controls->Add(this->checkBMahalonobis);
 			this->Controls->Add(this->label11);
 			this->Controls->Add(this->richTextBoxObjects);
 			this->Controls->Add(this->label8);
@@ -526,8 +554,15 @@ namespace Object_Classification_Project {
 
 																						//  kMeans adim degerlerini tutucak, threashold degerlerini izleyebilecegiz	
 			std::vector <int> kMeansSteps;					
-			int* TPoints = kMeans(hist, &kMeansSteps);									// kMeans hesapla ve dengeli threashold degerlerini TPoints return et
-																						//  TPoints[0] -> T1, TPoints[1] -> T2
+																						// kMeans hesapla ve dengeli threashold degerlerini TPoints return et
+			int* TPoints;															    //  TPoints[0] -> T1, TPoints[1] -> T2		
+			
+			if(checkBEuclidean->Checked == true )			
+				TPoints = kMeansEuclidean(hist, &kMeansSteps);					
+			
+			else if(checkBMahalonobis->Checked == true )	
+				TPoints = kMeansMahalonobis(hist, &kMeansSteps);				
+
 
 																						// richtexBox a kMeans threashold adimlarini aktar
 			richTextBox1->Clear();
