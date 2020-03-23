@@ -20,7 +20,37 @@ int* createHistMatris(BYTE* rawIndensity, int width, int height)
 	return hist;
 }
 
-void tagHist(int* tagArray, int T1, int T2)
+double standardDeviation(int k, int N)
+{
+	long total = 0;
+	for (int i = 0; i < N; i++)
+	{
+		total += pow((i - k), 2);
+	}
+
+	return sqrt(total / (N - 1));
+}
+
+int mahalonobisDist(int k, int x, double standartDevision)
+{
+	return int(sqrt(pow((double(x - k) / standartDevision), 2)));
+}
+
+void tagHistMahalonobis(int* tagArray, int T1, int T2)
+{
+	double T1StandardD = standardDeviation(T1, 256);
+	double T2StandardD = standardDeviation(T2, 256);
+
+	for (int i = 0; i < 256; i++)
+	{
+		if (mahalonobisDist(T1, i, T1StandardD) < mahalonobisDist(T2, i, T2StandardD))
+			tagArray[i] = 0;		// T1 tag value -> 0
+		else
+			tagArray[i] = 255;		// T2 tag value -> 255
+	}
+}
+
+void tagHistEuclidean(int* tagArray, int T1, int T2)
 {
 	for (int i = 0; i < 256; i++)
 	{
@@ -31,7 +61,7 @@ void tagHist(int* tagArray, int T1, int T2)
 	}
 }
 
-int* kMeans(int* hist, std::vector <int>* vec, int T1, int T2)
+int* kMeansEuclidean(int* hist, std::vector <int>* vec, int T1, int T2)
 {
 	if (T1 == 0 && T2 == 0)
 	{
@@ -49,7 +79,7 @@ int* kMeans(int* hist, std::vector <int>* vec, int T1, int T2)
 	while (true)
 	{
 
-		tagHist(tagArray, T1, T2);
+		tagHistEuclidean(tagArray, T1, T2);
 
 		double meanT1 = 0.0;
 		double meanT2 = 0.0;
@@ -60,6 +90,74 @@ int* kMeans(int* hist, std::vector <int>* vec, int T1, int T2)
 		long totalMeanT2Upper = 0;
 		long totalMeanT2Down = 0;
 
+
+		for (int i = 0; i < 256; i++)
+		{
+			if (tagArray[i] == 0)
+			{
+				totalMeanT1Upper += i * hist[i];
+				totalMeanT1Down += hist[i];
+			}
+			else {
+				totalMeanT2Upper += i * hist[i];
+				totalMeanT2Down += hist[i];
+			}
+		}
+
+		if (totalMeanT1Down == 0) totalMeanT1Down = 1;
+		if (totalMeanT2Down == 0) totalMeanT2Down = 1;
+
+		meanT1 = totalMeanT1Upper / totalMeanT1Down;
+		meanT2 = totalMeanT2Upper / totalMeanT2Down;
+
+		if ((int)meanT1 == T1 && (int)meanT2 == T2)
+		{
+			int* TArray = new int[2];
+
+			vec->push_back(T1);
+			vec->push_back(T2);
+			TArray[0] = T1;
+			TArray[1] = T2;
+			return TArray;
+		}
+		else {
+			T1 = (int)meanT1;
+			T2 = (int)meanT2;
+
+			vec->push_back(T1);
+			vec->push_back(T2);
+		}
+	}
+}
+
+int* kMeansMahalonobis(int* hist, std::vector <int>* vec, int T1, int T2)
+{
+	if (T1 == 0 && T2 == 0)
+	{
+		srand(time(NULL));
+		// hist matrisinde ki degerlere sahip aralikta tahmin yapsin, boylece threshold degerlerinin 0 a kaymasi engellenir
+		T1 = rand() % (histMaxValueIndex(hist, 256) - histMinValueIndex(hist, 256) + 1) + histMinValueIndex(hist, 256);						// 0 -> tag value
+		T2 = rand() % (histMaxValueIndex(hist, 256) - histMinValueIndex(hist, 256) + 1) + histMinValueIndex(hist, 256);						// 255 -> tag value											
+	}
+
+	vec->push_back(T1);
+	vec->push_back(T2);
+
+	int* tagArray = new int[256];
+
+	while (true)
+	{
+
+		tagHistMahalonobis(tagArray, T1, T2);
+
+		double meanT1 = 0.0;
+		double meanT2 = 0.0;
+
+		long totalMeanT1Upper = 0;
+		long totalMeanT1Down = 0;
+
+		long totalMeanT2Upper = 0;
+		long totalMeanT2Down = 0;
 
 		for (int i = 0; i < 256; i++)
 		{
