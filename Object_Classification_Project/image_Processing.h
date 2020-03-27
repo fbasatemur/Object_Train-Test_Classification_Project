@@ -30,6 +30,8 @@ void displayBitmap(BYTE* intensityMat, int Width, int Height, int* T2Points, Sys
 
 void displayBitmap(int* intensityMat, int Width, int Height, System::Drawing::Bitmap^ bitmap);
 
+void calculateTagColors(std::vector <int> tagVector, std::vector <int>& tagColorVector);
+
 void displayCConnectivityAnalysis(int* zeroPadingSurface, int Width, int Height, System::Drawing::Bitmap^ bitmapSurface, std::vector <int> vecTags);
 
 void displayRectangle(int* classificationImage, int Width, int Height, System::Drawing::Bitmap^ bitmapSurface, std::vector <int>& tagVector);

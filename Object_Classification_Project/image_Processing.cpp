@@ -370,20 +370,27 @@ void displayBitmap(int* intensityMat, int Width, int Height, System::Drawing::Bi
 	}
 }
 
-void displayCConnectivityAnalysis(int* zeroPadingSurface, int Width, int Height, System::Drawing::Bitmap^ bitmapSurface, std::vector <int> vecTags)
+void calculateTagColors(std::vector <int> tagVector, std::vector <int>& tagColorVector)
 {
-	System::Drawing::Color color;
-
-	int retVecSize = vecTags.size();
+	int retVecSize = tagVector.size();
 	retVecSize = retVecSize == 0 ? 1 : retVecSize;
 	int colorK = 255 / retVecSize;
 
-	std::vector <int> colorVecColor;
-	for (int i = 0; i < vecTags.size(); i++)
+	for (int i = 0; i < retVecSize; i++)
 	{
-		colorVecColor.push_back(i * colorK);
+		tagColorVector.push_back(i * colorK);
 	}
+}
 
+void displayCConnectivityAnalysis(int* zeroPadingSurface, int Width, int Height, System::Drawing::Bitmap^ bitmapSurface, std::vector <int> tagVector)
+{
+	std::vector <int> tagColorVector;
+	calculateTagColors(tagVector, tagColorVector);
+
+	System::Drawing::Color color;
+
+	int colorValue = 0;
+	int previousValue = 0;
 	for (int row = 0; row < Height; row++)
 	{
 		for (int col = 0; col < Width; col++)
@@ -392,10 +399,12 @@ void displayCConnectivityAnalysis(int* zeroPadingSurface, int Width, int Height,
 			if (zeroPadingSurface[row * Width + col] == 0)
 				color = System::Drawing::Color::FromArgb(255, 255, 255);
 
-			else if (valueSearch(vecTags, zeroPadingSurface[row * Width + col]))
+			else if (valueSearch(tagVector, zeroPadingSurface[row * Width + col]))
 			{
-				int colorValue = colorVecColor[vecValueIndex(vecTags, zeroPadingSurface[row * Width + col])] % 255;
-				color = System::Drawing::Color::FromArgb((colorValue * zeroPadingSurface[row * Width + col]) % 255, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);
+				colorValue = tagColorVector[vecValueIndex(tagVector, zeroPadingSurface[row * Width + col])] % 255;
+				color = System::Drawing::Color::FromArgb(colorValue, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);
+				/*color = System::Drawing::Color::FromArgb((colorValue * zeroPadingSurface[row * Width + col]) % 255, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);*/
+
 			}
 
 			// setpixel ise col row ve color bilgilerini ilgili bitmap matrise atar 
@@ -406,17 +415,10 @@ void displayCConnectivityAnalysis(int* zeroPadingSurface, int Width, int Height,
 
 void displayRectangle(int* classificationImage, int Width, int Height, System::Drawing::Bitmap^ bitmapSurface, std::vector <int>& tagVector)
 {
+	std::vector <int> tagColorVector;
+	calculateTagColors(tagVector, tagColorVector);
+
 	System::Drawing::Color color;
-
-	int retVecSize = tagVector.size();
-	retVecSize = retVecSize == 0 ? 1 : retVecSize;
-	int colorK = 255 / retVecSize;
-
-	std::vector <int> colorVecColor;
-	for (int i = 0; i < tagVector.size(); i++)
-	{
-		colorVecColor.push_back(i * colorK);
-	}
 
 	for (int row = 0; row < Height; row++)
 	{
@@ -431,8 +433,9 @@ void displayRectangle(int* classificationImage, int Width, int Height, System::D
 
 			else if (valueSearch(tagVector, classificationImage[row * Width + col]))
 			{
-				int colorValue = colorVecColor[vecValueIndex(tagVector, classificationImage[row * Width + col])] % 255;
-				color = System::Drawing::Color::FromArgb((colorValue * classificationImage[row * Width + col]) % 255, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);
+				int colorValue = tagColorVector[vecValueIndex(tagVector, classificationImage[row * Width + col])] % 255;
+				color = System::Drawing::Color::FromArgb(colorValue, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);
+				/*color = System::Drawing::Color::FromArgb((colorValue * classificationImage[row * Width + col]) % 255, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);*/
 			}
 
 			// setpixel ise col row ve color bilgilerini ilgili bitmap matrise atar 

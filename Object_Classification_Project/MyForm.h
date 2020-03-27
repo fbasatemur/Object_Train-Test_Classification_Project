@@ -450,6 +450,8 @@ namespace Object_Classification_Project {
 			// checkBEuclidean
 			// 
 			this->checkBEuclidean->AutoSize = true;
+			this->checkBEuclidean->Checked = true;
+			this->checkBEuclidean->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->checkBEuclidean->Location = System::Drawing::Point(807, 257);
 			this->checkBEuclidean->Name = L"checkBEuclidean";
 			this->checkBEuclidean->Size = System::Drawing::Size(135, 19);
@@ -663,6 +665,10 @@ namespace Object_Classification_Project {
 			//////////////	TEST
 			else if (testRadioButton->Checked == true)
 			{
+
+				std::vector <int> tagColorVector;
+				calculateTagColors(tagVector, tagColorVector);
+
 				richTextBoxObjects->Clear();
 
 				int* cutBinaryImage;
@@ -692,7 +698,8 @@ namespace Object_Classification_Project {
 
 				std::vector <double> diffVec;
 				std::vector <double> QVector;
-																				// her etiketlenen cisim icin tekrarla
+				
+				int colorValue = 0;												// her etiketlenen cisim icin tekrarla
 				for (int i = 0; i < tagCoordVector.size(); i += 4)
 				{
 					int cutWidth = 0;
@@ -720,8 +727,12 @@ namespace Object_Classification_Project {
 
 					double minValue = vecMinValueDouble(diffVec);				// Cismin Q degerleri ile db daki farki min olani bul
 																				// min farka sahip olan nesne ismini richTBox a aktar
+					colorValue = tagColorVector[i / 4];							// detect edilen nesneler ile ayni renkte text color belirle
+					richTextBoxObjects->SelectionColor = System::Drawing::Color::FromArgb(colorValue, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);
 					String^ detectionName = context.marshal_as<String^>(objectTagNames[vecValueIndexDouble(diffVec, minValue)]);
 					richTextBoxObjects->AppendText(detectionName + "\n");
+					
+					
 					QVector.clear();
 					diffVec.clear();
 				}

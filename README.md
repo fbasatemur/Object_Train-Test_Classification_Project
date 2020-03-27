@@ -1,7 +1,6 @@
 # Object_Train-Test_Classification_Project
-<<<<<<< HEAD
-=======
 
+========================
 Programmig Language: C++
 GUI: CLR
 ------------------------------------------
@@ -14,4 +13,4 @@ GUI: CLR
 - Component Connectivity Analysis islemi 8 Neighbors -> Structure Element ile yapildi.
 - Moment Hesaplama islemi 7 seviyeli olarak yapildi
 - Tum algoritmalar herhangi bir libray kullanilmadan yazildi.
->>>>>>> master
+
