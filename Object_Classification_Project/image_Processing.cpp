@@ -284,6 +284,7 @@ BYTE* meanFilter(BYTE* colorImage, int& Width, int& Height, int* StructureElemen
 	{
 		cnv[i] = 0;
 	}
+
 	long temp = 0;
 	for (int row = locationSet; row < Height - locationSet; row++)
 	{

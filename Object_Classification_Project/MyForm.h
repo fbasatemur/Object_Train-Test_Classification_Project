@@ -77,6 +77,8 @@ namespace Object_Classification_Project {
 	private: System::Windows::Forms::Label^ label1;
 	private: System::Windows::Forms::CheckBox^ checkBMahalonobis;
 	private: System::Windows::Forms::CheckBox^ checkBEuclidean;
+	private: System::Windows::Forms::Label^ label13;
+	private: System::Windows::Forms::Label^ totalDetectedNum;
 
 
 
@@ -127,6 +129,8 @@ namespace Object_Classification_Project {
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->checkBMahalonobis = (gcnew System::Windows::Forms::CheckBox());
 			this->checkBEuclidean = (gcnew System::Windows::Forms::CheckBox());
+			this->label13 = (gcnew System::Windows::Forms::Label());
+			this->totalDetectedNum = (gcnew System::Windows::Forms::Label());
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->chart1))->BeginInit();
@@ -459,6 +463,30 @@ namespace Object_Classification_Project {
 			this->checkBEuclidean->Text = L"Euclidean Distance";
 			this->checkBEuclidean->UseVisualStyleBackColor = true;
 			// 
+			// label13
+			// 
+			this->label13->AutoSize = true;
+			this->label13->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->label13->Location = System::Drawing::Point(1188, 397);
+			this->label13->Margin = System::Windows::Forms::Padding(2, 0, 2, 0);
+			this->label13->Name = L"label13";
+			this->label13->Size = System::Drawing::Size(48, 17);
+			this->label13->TabIndex = 65;
+			this->label13->Text = L"Total :";
+			// 
+			// totalDetectedNum
+			// 
+			this->totalDetectedNum->AutoSize = true;
+			this->totalDetectedNum->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->totalDetectedNum->Location = System::Drawing::Point(1240, 397);
+			this->totalDetectedNum->Margin = System::Windows::Forms::Padding(2, 0, 2, 0);
+			this->totalDetectedNum->Name = L"totalDetectedNum";
+			this->totalDetectedNum->Size = System::Drawing::Size(16, 17);
+			this->totalDetectedNum->TabIndex = 66;
+			this->totalDetectedNum->Text = L"0";
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(7, 15);
@@ -466,6 +494,8 @@ namespace Object_Classification_Project {
 			this->AutoSize = true;
 			this->BackColor = System::Drawing::SystemColors::ControlDark;
 			this->ClientSize = System::Drawing::Size(1292, 853);
+			this->Controls->Add(this->totalDetectedNum);
+			this->Controls->Add(this->label13);
 			this->Controls->Add(this->checkBEuclidean);
 			this->Controls->Add(this->checkBMahalonobis);
 			this->Controls->Add(this->label11);
@@ -670,6 +700,7 @@ namespace Object_Classification_Project {
 				calculateTagColors(tagVector, tagColorVector);
 
 				richTextBoxObjects->Clear();
+				totalDetectedNum->Text = "";
 
 				int* cutBinaryImage;
 				msclr::interop::marshal_context context;
@@ -732,6 +763,8 @@ namespace Object_Classification_Project {
 					String^ detectionName = context.marshal_as<String^>(objectTagNames[vecValueIndexDouble(diffVec, minValue)]);
 					richTextBoxObjects->AppendText(detectionName + "\n");
 					
+																				// toplam tespit edilen nesne miktari
+					totalDetectedNum->Text = (System::String^)(tagCoordVector.size()/4).ToString();		
 					
 					QVector.clear();
 					diffVec.clear();
