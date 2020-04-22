@@ -38,7 +38,7 @@ void displayRectangle(int* classificationImage, int Width, int Height, System::D
 
 int* intensity2Binary(BYTE* intensity, int Width, int Height, int* T2Points);
 
-int* addZeroPading(int* cnv, int& Width, int& Height, int structureElementSize);
+int* addZeroPadding(int* cnv, int& Width, int& Height, int structureElementSize);
 
 int vecValueIndex(std::vector <int>& vec, int value);
 

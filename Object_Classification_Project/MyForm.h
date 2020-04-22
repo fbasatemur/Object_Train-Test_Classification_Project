@@ -79,6 +79,7 @@ namespace Object_Classification_Project {
 	private: System::Windows::Forms::CheckBox^ checkBEuclidean;
 	private: System::Windows::Forms::Label^ label13;
 	private: System::Windows::Forms::Label^ totalDetectedNum;
+	private: System::Windows::Forms::CheckBox^ checkBZeroPadding;
 
 
 
@@ -131,6 +132,7 @@ namespace Object_Classification_Project {
 			this->checkBEuclidean = (gcnew System::Windows::Forms::CheckBox());
 			this->label13 = (gcnew System::Windows::Forms::Label());
 			this->totalDetectedNum = (gcnew System::Windows::Forms::Label());
+			this->checkBZeroPadding = (gcnew System::Windows::Forms::CheckBox());
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->chart1))->BeginInit();
@@ -341,7 +343,7 @@ namespace Object_Classification_Project {
 			// trainingRadioButton
 			// 
 			this->trainingRadioButton->AutoSize = true;
-			this->trainingRadioButton->Location = System::Drawing::Point(807, 344);
+			this->trainingRadioButton->Location = System::Drawing::Point(807, 354);
 			this->trainingRadioButton->Margin = System::Windows::Forms::Padding(2);
 			this->trainingRadioButton->Name = L"trainingRadioButton";
 			this->trainingRadioButton->Size = System::Drawing::Size(84, 19);
@@ -353,7 +355,7 @@ namespace Object_Classification_Project {
 			// 
 			this->testRadioButton->AutoSize = true;
 			this->testRadioButton->Checked = true;
-			this->testRadioButton->Location = System::Drawing::Point(807, 321);
+			this->testRadioButton->Location = System::Drawing::Point(807, 331);
 			this->testRadioButton->Margin = System::Windows::Forms::Padding(2);
 			this->testRadioButton->Name = L"testRadioButton";
 			this->testRadioButton->Size = System::Drawing::Size(58, 19);
@@ -487,6 +489,18 @@ namespace Object_Classification_Project {
 			this->totalDetectedNum->TabIndex = 66;
 			this->totalDetectedNum->Text = L"0";
 			// 
+			// checkBZeroPadding
+			// 
+			this->checkBZeroPadding->AutoSize = true;
+			this->checkBZeroPadding->Checked = true;
+			this->checkBZeroPadding->CheckState = System::Windows::Forms::CheckState::Checked;
+			this->checkBZeroPadding->Location = System::Drawing::Point(807, 307);
+			this->checkBZeroPadding->Name = L"checkBZeroPadding";
+			this->checkBZeroPadding->Size = System::Drawing::Size(103, 19);
+			this->checkBZeroPadding->TabIndex = 67;
+			this->checkBZeroPadding->Text = L"Zero Padding";
+			this->checkBZeroPadding->UseVisualStyleBackColor = true;
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(7, 15);
@@ -494,6 +508,7 @@ namespace Object_Classification_Project {
 			this->AutoSize = true;
 			this->BackColor = System::Drawing::SystemColors::ControlDark;
 			this->ClientSize = System::Drawing::Size(1292, 853);
+			this->Controls->Add(this->checkBZeroPadding);
 			this->Controls->Add(this->totalDetectedNum);
 			this->Controls->Add(this->label13);
 			this->Controls->Add(this->checkBEuclidean);
@@ -632,31 +647,32 @@ namespace Object_Classification_Project {
 			pictureBox5->Image = surfaceOpening;
 			displayBitmap(cnvOpening, Width, Height, surfaceOpening);
 
-																						// Opening uygulanmis goruntuye ZeroPading ekle
-			int* zeroPading = addZeroPading(cnvOpening, Width, Height, 3);
+																						// Opening uygulanmis goruntuye ZeroPadding ekle (opsiyonel)
+			int* zeroPadding = (checkBZeroPadding->Checked == true) ? addZeroPadding(cnvOpening, Width, Height, 3) : cnvOpening;
 
-																						// ZeroPading uygulanmis goruntuyu baska bir adreste yedekle
-			int* zeroPadingBinary = new int[Width * Height];
-			deepCopyArray(zeroPading, Width, Height, zeroPadingBinary);					
 
-																						// ZeroPading goruntusunde 8 komsuluklu CCA uygula; etiketleri tagVector de depola
+																						// ZeroPadding uygulanmis goruntuyu baska bir adreste yedekle
+			int* zeroPaddingBinary = new int[Width * Height];
+			deepCopyArray(zeroPadding, Width, Height, zeroPaddingBinary);					
+
+																						// ZeroPadding goruntusunde 8 komsuluklu CCA uygula; etiketleri tagVector de depola
 			std::vector <int> tagVector;
-			CConnectivityAnalysis8N(zeroPading, Width, Height, tagVector);				
+			CConnectivityAnalysis8N(zeroPadding, Width, Height, tagVector);				
 
 																						
 																						// display CCA
 			Bitmap^ zeroPadingSurface = gcnew Bitmap(Width, Height);
 			pictureBox6->Image = zeroPadingSurface;
-			displayCConnectivityAnalysis(zeroPading, Width, Height, zeroPadingSurface, tagVector);		
+			displayCConnectivityAnalysis(zeroPadding, Width, Height, zeroPadingSurface, tagVector);		
 
 
 			std::vector <int> tagCoordVector;											// nesnelerin kordinat bilgileri tutulur 0-> minCol, 1 -> minRow, 2-> maxCol, 3-> maxRow
-			drawRectangle(zeroPading, Width, Height, tagVector, tagCoordVector);		// belirlenen nesnelerin etrafina kutu ciz
+			drawRectangle(zeroPadding, Width, Height, tagVector, tagCoordVector);		// belirlenen nesnelerin etrafina kutu ciz
 
 																						// tum islemleri iceren sonucunu goruntule
 			Bitmap^ detectionSurface = gcnew Bitmap(Width, Height);
 			pictureBox7->Image = detectionSurface;
-			displayRectangle(zeroPading, Width, Height, detectionSurface, tagVector);
+			displayRectangle(zeroPadding, Width, Height, detectionSurface, tagVector);
 
 			///////////////  TRAINING
 			if (trainingRadioButton->Checked == true)
@@ -675,7 +691,7 @@ namespace Object_Classification_Project {
 					int cutWidth = 0;													
 					int cutHeight = 0;
 																			// tespit edilen cismin etiket koordinatlarini kullanarak, CCA uygulanmamis goruntu uzerinde kirp
-					cutBinaryImage = binaryImageCut(zeroPadingBinary, Width, tagCoordVector[i], tagCoordVector[i + 1], tagCoordVector[i + 2], tagCoordVector[i + 3], cutWidth, cutHeight);
+					cutBinaryImage = binaryImageCut(zeroPaddingBinary, Width, tagCoordVector[i], tagCoordVector[i + 1], tagCoordVector[i + 2], tagCoordVector[i + 3], cutWidth, cutHeight);
 
 																			// Moment hesapla
 					calculateQ(cutBinaryImage, cutWidth, cutHeight, Qvalues);
@@ -736,7 +752,7 @@ namespace Object_Classification_Project {
 					int cutWidth = 0;
 					int cutHeight = 0;
 																				// tespit edilen cismin etiket koordinatlarini kullanarak, CCA uygulanmamis goruntu uzerinde kirp
-					cutBinaryImage = binaryImageCut(zeroPadingBinary, Width, tagCoordVector[i], tagCoordVector[i + 1], tagCoordVector[i + 2], tagCoordVector[i + 3], cutWidth, cutHeight);
+					cutBinaryImage = binaryImageCut(zeroPaddingBinary, Width, tagCoordVector[i], tagCoordVector[i + 1], tagCoordVector[i + 2], tagCoordVector[i + 3], cutWidth, cutHeight);
 																				// Moment hesapla
 					calculateQ(cutBinaryImage, cutWidth, cutHeight, QVector);
 

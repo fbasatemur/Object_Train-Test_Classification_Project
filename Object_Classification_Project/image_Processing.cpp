@@ -462,7 +462,7 @@ int* intensity2Binary(BYTE* intensity, int Width, int Height, int* T2Points)
 	return bImage;
 }
 
-int* addZeroPading(int* cnv, int& Width, int& Height, int structureElementSize)
+int* addZeroPadding(int* cnv, int& Width, int& Height, int structureElementSize)
 {
 	int fillSize = (structureElementSize - 1) / 2;
 	int cnvZeroWidth = (Width + (fillSize * 2));
