@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include<windows.h>
+#include <windows.h>
 #include <atlstr.h>								// LPCTSTR 
-#include<iostream>
+#include <iostream>
 
-#include<msclr\marshal_cppstd.h>
+#include <msclr\marshal_cppstd.h>
 #include <fstream>
-#include<vector>
+#include <vector>
 
 #include "image_BMP.h"
 #include "image_Processing.h"					// My Functions
@@ -506,7 +506,7 @@ namespace Object_Classification_Project {
 			this->AutoScaleDimensions = System::Drawing::SizeF(7, 15);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->AutoSize = true;
-			this->BackColor = System::Drawing::SystemColors::ControlDark;
+			this->BackColor = System::Drawing::SystemColors::Control;
 			this->ClientSize = System::Drawing::Size(1292, 853);
 			this->Controls->Add(this->checkBZeroPadding);
 			this->Controls->Add(this->totalDetectedNum);
@@ -575,7 +575,7 @@ namespace Object_Classification_Project {
 
 			CString filePathStr;
 
-																						// dosya secmek icin openfiledialog olusturuldu ve secilen dosyanin adresi aliniyor
+																					// dosya secmek icin openfiledialog olusturuldu ve secilen dosyanin adresi aliniyor
 			filePathStr = openFileDialog1->FileName;
 
 																						// LoadBMP fonksiyonu LPCTSTR destekler
@@ -598,17 +598,16 @@ namespace Object_Classification_Project {
 				chart1->Series["Hist"]->Points->AddXY(i, hist[i]);
 			}
 
-
-																						//  kMeans adim degerlerini tutucak, threashold degerlerini izleyebilecegiz	
+																						// KMeans adim degerlerini tutucak, threashold degerlerini izleyebilecegiz	
 			std::vector <int> kMeansSteps;					
-																						// kMeans hesapla ve dengeli threashold degerlerini TPoints return et
-			int* TPoints;															    //  TPoints[0] -> T1, TPoints[1] -> T2		
+																						// KMeans hesapla ve dengeli threashold degerlerini TPoints return et
+			int* TPoints;															    // TPoints[0] -> T1, TPoints[1] -> T2		
 			
-			if(checkBEuclidean->Checked == true )			
-				TPoints = kMeansEuclidean(hist, &kMeansSteps);					
-			
-			else if(checkBMahalonobis->Checked == true )	
-				TPoints = kMeansMahalonobis(hist, &kMeansSteps);				
+			if (checkBEuclidean->Checked == true)
+				TPoints = KMeans(hist, &kMeansSteps, 0, 0, true);						// T1 ve T2 baslangicta 0 setlenir ve Euclidean dist ile hesaplamasi icin true
+
+			else if (checkBMahalonobis->Checked == true)
+				TPoints = KMeans(hist, &kMeansSteps, 0, 0, false);						// T1 ve T2 baslangicta 0 setlenir ve Mahalonobis dist ile hesaplamasi icin false
 
 
 																						// richtexBox a kMeans threashold adimlarini aktar
@@ -620,12 +619,10 @@ namespace Object_Classification_Project {
 			}
 			kMeansSteps.clear();
 
-
-																						// display k-Means	
-
+																						// display KMeans	
 			Bitmap^ kMeansSurface = gcnew Bitmap(Width, Height);
 			pictureBox2->Image = kMeansSurface;											
-			displayBitmap(meanFilterI, Width, Height, TPoints, kMeansSurface);			// Stabil Threashold degerlerini Euclidean dist ile hesapla ve S-B olarak ekrana yansit
+			displayBitmap(meanFilterI, Width, Height, TPoints, kMeansSurface);			// Threshold degerlerine gore ve S-B olarak ekrana yansit
 
 																						// display Threshold values
 			label1->Text = Convert::ToString(TPoints[0]);
@@ -655,7 +652,7 @@ namespace Object_Classification_Project {
 			int* zeroPaddingBinary = new int[Width * Height];
 			deepCopyArray(zeroPadding, Width, Height, zeroPaddingBinary);					
 
-																						// ZeroPadding goruntusunde 8 komsuluklu CCA uygula; etiketleri tagVector de depola
+																						// Goruntu uzerinde 8 komsuluklu CCA uygula; etiketleri tagVector de depola
 			std::vector <int> tagVector;
 			CConnectivityAnalysis8N(zeroPadding, Width, Height, tagVector);				
 
@@ -666,10 +663,10 @@ namespace Object_Classification_Project {
 			displayCConnectivityAnalysis(zeroPadding, Width, Height, zeroPadingSurface, tagVector);		
 
 
-			std::vector <int> tagCoordVector;											// nesnelerin kordinat bilgileri tutulur 0-> minCol, 1 -> minRow, 2-> maxCol, 3-> maxRow
+			std::vector <int> tagCoordVector;						// nesnelerin kordinat bilgileri tutulur 0-> minCol, 1 -> minRow, 2-> maxCol, 3-> maxRow
 			drawRectangle(zeroPadding, Width, Height, tagVector, tagCoordVector);		// belirlenen nesnelerin etrafina kutu ciz
 
-																						// tum islemleri iceren sonucunu goruntule
+																	// tum islemleri iceren sonucunu goruntule
 			Bitmap^ detectionSurface = gcnew Bitmap(Width, Height);
 			pictureBox7->Image = detectionSurface;
 			displayRectangle(zeroPadding, Width, Height, detectionSurface, tagVector);
@@ -678,115 +675,73 @@ namespace Object_Classification_Project {
 			if (trainingRadioButton->Checked == true)
 			{
 				richTextBoxObjects->Clear();
-
-				int* cutBinaryImage;
 				msclr::interop::marshal_context context;
-				std::ofstream outFile;
-				outFile.open("db.txt", std::ios::app);
-				std::vector <double> Qvalues;
-																			// her etiketlenen cismin icin tekrarla
-				for (int i = 0; i < tagCoordVector.size(); i += 4)
-				{
-																			// tespit icin kirpilacak goruntu boyutu degiskenleri
-					int cutWidth = 0;													
-					int cutHeight = 0;
-																			// tespit edilen cismin etiket koordinatlarini kullanarak, CCA uygulanmamis goruntu uzerinde kirp
-					cutBinaryImage = binaryImageCut(zeroPaddingBinary, Width, tagCoordVector[i], tagCoordVector[i + 1], tagCoordVector[i + 2], tagCoordVector[i + 3], cutWidth, cutHeight);
+				
+																// egitim yapilacak object adini textBox dan al 
+				std::string objectName = context.marshal_as<std::string>(objectNameTextB->Text);
 
-																			// Moment hesapla
-					calculateQ(cutBinaryImage, cutWidth, cutHeight, Qvalues);
-																			// 7 Q degerini dosyaya yaz
-					for (int i = 0; i < 7; i++)
-					{
-						outFile << Qvalues[i] << " ";
-					}
-																			// egitim yapilacak object adini textBox dan al ve dosyaya aktar
-					std::string objectName = context.marshal_as<std::string>(objectNameTextB->Text);
-					outFile << objectName << std::endl;
-					Qvalues.clear();
+																// objectName girilmis ve nesne etiketlenmis ise
+				if (objectName.size() && tagCoordVector.size())	
+				{
+																// etiketlenmis tum nesneler icin Moment degerlerini hesapla ve objectName ismi ile DB kaydet
+					saveDataBase("db.txt", zeroPaddingBinary, Width, tagCoordVector, objectName);
 				}
-				outFile.close();
+				else if(!objectName.size())
+					MessageBox::Show("Object name not entered !", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
+				else 
+					MessageBox::Show("Object not detected !", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
 			}
 
 			//////////////	TEST
 			else if (testRadioButton->Checked == true)
-			{
-
-				std::vector <int> tagColorVector;
-				calculateTagColors(tagVector, tagColorVector);
-
-				richTextBoxObjects->Clear();
-				totalDetectedNum->Text = "";
-
-				int* cutBinaryImage;
-				msclr::interop::marshal_context context;
-				std::string QValue;
-				std::string objectName;
-
-				std::vector <double> objectQValues;
-				std::vector <std::string> objectTagNames;
-
-				std::ifstream inFile;
-				inFile.open("db.txt");
-																				// dosyadaki tum training sonuclarini oku
-				while (true)
+			{				
+				if (tagCoordVector.size())
 				{
-					for (int i = 0; i < 7; i++)
+					std::vector <int> tagColorVector;
+
+					calculateTagColors(tagVector, tagColorVector);
+
+					richTextBoxObjects->Clear();
+					totalDetectedNum->Text = "";
+
+
+					int* cutBinaryImage;
+					msclr::interop::marshal_context context;
+
+					std::vector <double> objectQValues;				// object Moment degerleri
+					std::vector <std::string> objectTagNames;		// object Tag isimleri
+
+																	// tum nesne isim ve moment degerlerini database den oku
+					readDataBase("db.txt", objectQValues, objectTagNames);
+
+					std::vector <double> QVector;
+					int minMatcIndex = 0;
+
+					int colorValue = 0;												// her etiketlenen cisim icin tekrarla
+					for (int i = 0; i < tagCoordVector.size(); i += 4)
 					{
-						inFile >> QValue;
-						if (inFile.eof())break;
-						objectQValues.push_back(std::stod(QValue));				// objectQValues -> her nesne icin 7 adet Q degeri depolar
+						int cutWidth = 0;
+						int cutHeight = 0;
+						// tespit edilen cismin etiket koordinatlarini kullanarak, CCA uygulanmamis goruntu uzerinde kirp
+						cutBinaryImage = binaryImageCut(zeroPaddingBinary, Width, tagCoordVector[i], tagCoordVector[i + 1], tagCoordVector[i + 2], tagCoordVector[i + 3], cutWidth, cutHeight);
+						// 7 seviyeli Moment hesapla
+						calculateQ(cutBinaryImage, cutWidth, cutHeight, QVector);
+
+						minMatcIndex = matching(objectQValues, QVector);			// Cismin Q degerleri ile db daki farki min olani bul
+																					// min farka sahip olan nesne ismini richTBox a aktar
+						colorValue = tagColorVector[i / 4];							// detect edilen nesneler ile ayni renkte text color belirle
+						richTextBoxObjects->SelectionColor = System::Drawing::Color::FromArgb(colorValue, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);
+						String^ detectionName = context.marshal_as<String^>(objectTagNames[minMatcIndex]);
+						richTextBoxObjects->AppendText(detectionName + "\n");
+
+						// toplam tespit edilen nesne miktari
+						totalDetectedNum->Text = (System::String^)(tagCoordVector.size() / 4).ToString();
+
+						QVector.clear();
 					}
-
-					inFile >> objectName;
-					if (inFile.eof())break;
-					objectTagNames.push_back(objectName);						// objectTagNames -> her nesnenin ismini depolar
 				}
-
-				std::vector <double> diffVec;
-				std::vector <double> QVector;
-				
-				int colorValue = 0;												// her etiketlenen cisim icin tekrarla
-				for (int i = 0; i < tagCoordVector.size(); i += 4)
-				{
-					int cutWidth = 0;
-					int cutHeight = 0;
-																				// tespit edilen cismin etiket koordinatlarini kullanarak, CCA uygulanmamis goruntu uzerinde kirp
-					cutBinaryImage = binaryImageCut(zeroPaddingBinary, Width, tagCoordVector[i], tagCoordVector[i + 1], tagCoordVector[i + 2], tagCoordVector[i + 3], cutWidth, cutHeight);
-																				// Moment hesapla
-					calculateQ(cutBinaryImage, cutWidth, cutHeight, QVector);
-
-					double diffSum = 0.0;
-					for (int i = 0; i < objectQValues.size(); i += 7)
-					{
-						diffSum += System::Math::Abs(objectQValues[i] - QVector[0]);
-						diffSum += System::Math::Abs(objectQValues[i + 1] - QVector[1]);
-						diffSum += System::Math::Abs(objectQValues[i + 2] - QVector[2]);
-						diffSum += System::Math::Abs(objectQValues[i + 3] - QVector[3]);
-						diffSum += System::Math::Abs(objectQValues[i + 4] - QVector[4]);
-						diffSum += System::Math::Abs(objectQValues[i + 5] - QVector[5]);
-						diffSum += System::Math::Abs(objectQValues[i + 6] - QVector[6]);
-
-																				// Hesaplanan Q degerleri ile db daki her nesne icin farklarini depola
-						diffVec.push_back(diffSum);								
-						diffSum = 0.0;
-					}
-
-					double minValue = vecMinValueDouble(diffVec);				// Cismin Q degerleri ile db daki farki min olani bul
-																				// min farka sahip olan nesne ismini richTBox a aktar
-					colorValue = tagColorVector[i / 4];							// detect edilen nesneler ile ayni renkte text color belirle
-					richTextBoxObjects->SelectionColor = System::Drawing::Color::FromArgb(colorValue, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);
-					String^ detectionName = context.marshal_as<String^>(objectTagNames[vecValueIndexDouble(diffVec, minValue)]);
-					richTextBoxObjects->AppendText(detectionName + "\n");
-					
-																				// toplam tespit edilen nesne miktari
-					totalDetectedNum->Text = (System::String^)(tagCoordVector.size()/4).ToString();		
-					
-					QVector.clear();
-					diffVec.clear();
-				}
-				inFile.close();
-
+				else
+					MessageBox::Show("Object not detected !", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
 			}
 		}
 	}

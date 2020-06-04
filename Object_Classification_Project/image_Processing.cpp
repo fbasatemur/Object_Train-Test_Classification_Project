@@ -2,20 +2,18 @@
 #include "image_Processing.h"
 #include <math.h>
 #include <ctime>
+#include <string>
+
 
 #define MIN(a,b) ((a < b) ? a : b)
 #define MAX(a,b) ((a > b) ? a : b)
 
-int* createHistMatris(BYTE* rawIndensity, int width, int height)
+int* createHistMatris(BYTE* indensityImage, int width, int height)
 {
-	int* hist = new int[256];
-
-	for (int i = 0; i < 256; i++) {
-		hist[i] = 0;
-	}
+	int* hist = (int*)calloc(256,sizeof(int));
 
 	for (int i = 0; i < width * height; i++)
-		hist[rawIndensity[i]]++;
+		hist[indensityImage[i]]++;
 
 	return hist;
 }
@@ -61,7 +59,7 @@ void tagHistEuclidean(int* tagArray, int T1, int T2)
 	}
 }
 
-int* kMeansEuclidean(int* hist, std::vector <int>* vec, int T1, int T2)
+int* KMeans(int* hist, std::vector <int>* vec, int T1, int T2, bool distanceFlag)
 {
 	if (T1 == 0 && T2 == 0)
 	{
@@ -78,8 +76,10 @@ int* kMeansEuclidean(int* hist, std::vector <int>* vec, int T1, int T2)
 
 	while (true)
 	{
-
-		tagHistEuclidean(tagArray, T1, T2);
+		if(distanceFlag)								// distanceFlag == true ise Euclidean; degilse Mahalonobis Distance hesaplanir
+			tagHistEuclidean(tagArray, T1, T2);
+		else 
+			tagHistMahalonobis(tagArray, T1, T2);
 
 		double meanT1 = 0.0;
 		double meanT2 = 0.0;
@@ -130,84 +130,79 @@ int* kMeansEuclidean(int* hist, std::vector <int>* vec, int T1, int T2)
 	}
 }
 
-int* kMeansMahalonobis(int* hist, std::vector <int>* vec, int T1, int T2)
+//int* KMeansMahalonobis(int* hist, std::vector <int>* vec, int T1, int T2)
+//{
+//	if (T1 == 0 && T2 == 0)
+//	{
+//		srand(time(NULL));
+//		// hist matrisinde ki degerlere sahip aralikta tahmin yapsin, boylece threshold degerlerinin 0 a kaymasi engellenir
+//		T1 = rand() % (histMaxValueIndex(hist, 256) - histMinValueIndex(hist, 256) + 1) + histMinValueIndex(hist, 256);						// 0 -> tag value
+//		T2 = rand() % (histMaxValueIndex(hist, 256) - histMinValueIndex(hist, 256) + 1) + histMinValueIndex(hist, 256);						// 255 -> tag value											
+//	}
+//
+//	vec->push_back(T1);
+//	vec->push_back(T2);
+//
+//	int* tagArray = new int[256];
+//
+//	while (true)
+//	{
+//
+//		tagHistMahalonobis(tagArray, T1, T2);
+//
+//		double meanT1 = 0.0;
+//		double meanT2 = 0.0;
+//
+//		long totalMeanT1Upper = 0;
+//		long totalMeanT1Down = 0;
+//
+//		long totalMeanT2Upper = 0;
+//		long totalMeanT2Down = 0;
+//
+//		for (int i = 0; i < 256; i++)
+//		{
+//			if (tagArray[i] == 0)
+//			{
+//				totalMeanT1Upper += i * hist[i];
+//				totalMeanT1Down += hist[i];
+//			}
+//			else {
+//				totalMeanT2Upper += i * hist[i];
+//				totalMeanT2Down += hist[i];
+//			}
+//		}
+//
+//		if (totalMeanT1Down == 0) totalMeanT1Down = 1;
+//		if (totalMeanT2Down == 0) totalMeanT2Down = 1;
+//
+//		meanT1 = totalMeanT1Upper / totalMeanT1Down;
+//		meanT2 = totalMeanT2Upper / totalMeanT2Down;
+//
+//		if ((int)meanT1 == T1 && (int)meanT2 == T2)
+//		{
+//			int* TArray = new int[2];
+//
+//			vec->push_back(T1);
+//			vec->push_back(T2);
+//			TArray[0] = T1;
+//			TArray[1] = T2;
+//			return TArray;
+//		}
+//		else {
+//			T1 = (int)meanT1;
+//			T2 = (int)meanT2;
+//
+//			vec->push_back(T1);
+//			vec->push_back(T2);
+//		}
+//	}
+//}
+
+int* dilationBinary(int* binaryImage, int Width, int Height, int* StructureElement, int ElementSize)
 {
-	if (T1 == 0 && T2 == 0)
-	{
-		srand(time(NULL));
-		// hist matrisinde ki degerlere sahip aralikta tahmin yapsin, boylece threshold degerlerinin 0 a kaymasi engellenir
-		T1 = rand() % (histMaxValueIndex(hist, 256) - histMinValueIndex(hist, 256) + 1) + histMinValueIndex(hist, 256);						// 0 -> tag value
-		T2 = rand() % (histMaxValueIndex(hist, 256) - histMinValueIndex(hist, 256) + 1) + histMinValueIndex(hist, 256);						// 255 -> tag value											
-	}
+	int* cnv = (int*)calloc(Height * Width, sizeof(int));
 
-	vec->push_back(T1);
-	vec->push_back(T2);
-
-	int* tagArray = new int[256];
-
-	while (true)
-	{
-
-		tagHistMahalonobis(tagArray, T1, T2);
-
-		double meanT1 = 0.0;
-		double meanT2 = 0.0;
-
-		long totalMeanT1Upper = 0;
-		long totalMeanT1Down = 0;
-
-		long totalMeanT2Upper = 0;
-		long totalMeanT2Down = 0;
-
-		for (int i = 0; i < 256; i++)
-		{
-			if (tagArray[i] == 0)
-			{
-				totalMeanT1Upper += i * hist[i];
-				totalMeanT1Down += hist[i];
-			}
-			else {
-				totalMeanT2Upper += i * hist[i];
-				totalMeanT2Down += hist[i];
-			}
-		}
-
-		if (totalMeanT1Down == 0) totalMeanT1Down = 1;
-		if (totalMeanT2Down == 0) totalMeanT2Down = 1;
-
-		meanT1 = totalMeanT1Upper / totalMeanT1Down;
-		meanT2 = totalMeanT2Upper / totalMeanT2Down;
-
-		if ((int)meanT1 == T1 && (int)meanT2 == T2)
-		{
-			int* TArray = new int[2];
-
-			vec->push_back(T1);
-			vec->push_back(T2);
-			TArray[0] = T1;
-			TArray[1] = T2;
-			return TArray;
-		}
-		else {
-			T1 = (int)meanT1;
-			T2 = (int)meanT2;
-
-			vec->push_back(T1);
-			vec->push_back(T2);
-		}
-	}
-}
-
-int* dilationBinary(int* binaryImage, int Width, int Height, int* StructureElement, int StructureElementSize)
-{
-	int* cnv = new int[Height * Width];
-
-	for (int i = 0; i < Height * Width; i++)
-	{
-		cnv[i] = 0;
-	}
-
-	int locationSet = (StructureElementSize - 1) / 2;
+	int locationSet = (ElementSize - 1) / 2;
 
 	for (int row = locationSet; row < Height - locationSet; row++)
 	{
@@ -215,11 +210,11 @@ int* dilationBinary(int* binaryImage, int Width, int Height, int* StructureEleme
 		{
 			if (binaryImage[row * Width + col] == 1) {
 
-				for (int i = 0; i < StructureElementSize; i++)
+				for (int i = 0; i < ElementSize; i++)
 				{
-					for (int j = 0; j < StructureElementSize; j++)
+					for (int j = 0; j < ElementSize; j++)
 					{
-						cnv[(row - locationSet + i) * Width + col - locationSet + j] = binaryImage[(row - locationSet + i) * Width + col - locationSet + j] || StructureElement[i * StructureElementSize + j];
+						cnv[(row - locationSet + i) * Width + col - locationSet + j] = binaryImage[(row - locationSet + i) * Width + col - locationSet + j] || StructureElement[i * ElementSize + j];
 
 					}
 				}
@@ -230,16 +225,11 @@ int* dilationBinary(int* binaryImage, int Width, int Height, int* StructureEleme
 	return cnv;
 }
 
-int* erosionBinary(int* binaryImage, int Width, int Height, int* StructureElement, int StructureElementSize)
+int* erosionBinary(int* binaryImage, int Width, int Height, int* StructureElement, int ElementSize)
 {
-	int* cnv = new int[Height * Width];
+	int* cnv = (int*)calloc(Height * Width, sizeof(int));
 
-	for (int i = 0; i < Height * Width; i++)
-	{
-		cnv[i] = 0;
-	}
-
-	int locationSet = (StructureElementSize - 1) / 2;
+	int locationSet = (ElementSize - 1) / 2;
 
 	int counter = 0;
 	for (int row = locationSet; row < Height - locationSet; row++)
@@ -248,19 +238,19 @@ int* erosionBinary(int* binaryImage, int Width, int Height, int* StructureElemen
 		{
 			if (binaryImage[row * Width + col] == 1) {
 
-				for (int i = 0; i < StructureElementSize; i++)
+				for (int i = 0; i < ElementSize; i++)
 				{
-					for (int j = 0; j < StructureElementSize; j++)
+					for (int j = 0; j < ElementSize; j++)
 					{
 
-						if (StructureElement[i * StructureElementSize + j] == (StructureElement[i * StructureElementSize + j] && binaryImage[(row - locationSet + i) * Width + col - locationSet + j]))
+						if (StructureElement[i * ElementSize + j] == (StructureElement[i * ElementSize + j] && binaryImage[(row - locationSet + i) * Width + col - locationSet + j]))
 						{
 							counter++;
 						}
 					}
 				}
 
-				if (counter == StructureElementSize * StructureElementSize)
+				if (counter == ElementSize * ElementSize)
 				{
 					cnv[(row * Width) + col] = 1;
 				}
@@ -271,33 +261,28 @@ int* erosionBinary(int* binaryImage, int Width, int Height, int* StructureElemen
 	return cnv;
 }
 
-BYTE* meanFilter(BYTE* colorImage, int& Width, int& Height, int* StructureElement, int StructureElementSize)
+BYTE* meanFilter(BYTE* IntensityImage, int& Width, int& Height, int* StructureElement, int ElementSize)
 {
-	int locationSet = (StructureElementSize - 1) / 2;
+	int locationSet = (ElementSize - 1) / 2;
 
 	int cWidth = (Width - (locationSet * 2));
 	int cHeight = (Height - (locationSet * 2));
 
 	BYTE* cnv = new BYTE[cWidth * cHeight];
 
-	for (long i = 0; i < cHeight * cWidth; i++)
-	{
-		cnv[i] = 0;
-	}
-
 	long temp = 0;
 	for (int row = locationSet; row < Height - locationSet; row++)
 	{
 		for (int col = locationSet; col < Width - locationSet; col++)
 		{
-			for (int i = 0; i < StructureElementSize; i++)
+			for (int i = 0; i < ElementSize; i++)
 			{
-				for (int j = 0; j < StructureElementSize; j++)
+				for (int j = 0; j < ElementSize; j++)
 				{
-					temp += (colorImage[(row - locationSet + i) * Width + col - locationSet + j] * StructureElement[i * StructureElementSize + j]);
+					temp += (IntensityImage[(row - locationSet + i) * Width + col - locationSet + j] * StructureElement[i * ElementSize + j]);
 				}
 			}
-			cnv[(row - locationSet) * cWidth + col - locationSet] = (int)(temp / (StructureElementSize * StructureElementSize));
+			cnv[(row - locationSet) * cWidth + col - locationSet] = (int)(temp / (ElementSize * ElementSize));
 			temp = 0;
 
 		}
@@ -359,7 +344,6 @@ void displayBitmap(int* intensityMat, int Width, int Height, System::Drawing::Bi
 	{
 		for (int col = 0; col < Width; col++)
 		{
-
 			if (intensityMat[row * Width + col] == 1)
 				color = System::Drawing::Color::FromArgb(0, 0, 0);
 			else
@@ -396,19 +380,15 @@ void displayCConnectivityAnalysis(int* zeroPadingSurface, int Width, int Height,
 	{
 		for (int col = 0; col < Width; col++)
 		{
-
 			if (zeroPadingSurface[row * Width + col] == 0)
 				color = System::Drawing::Color::FromArgb(255, 255, 255);
 
-			else if (valueSearch(tagVector, zeroPadingSurface[row * Width + col]))
+			else if (isExistValue(tagVector, zeroPadingSurface[row * Width + col]))
 			{
 				colorValue = tagColorVector[vecValueIndex(tagVector, zeroPadingSurface[row * Width + col])] % 255;
 				color = System::Drawing::Color::FromArgb(colorValue, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);
-				/*color = System::Drawing::Color::FromArgb((colorValue * zeroPadingSurface[row * Width + col]) % 255, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);*/
-
 			}
 
-			// setpixel ise col row ve color bilgilerini ilgili bitmap matrise atar 
 			bitmapSurface->SetPixel(col, row, color);
 		}
 	}
@@ -425,21 +405,18 @@ void displayRectangle(int* classificationImage, int Width, int Height, System::D
 	{
 		for (int col = 0; col < Width; col++)
 		{
-
 			if (classificationImage[row * Width + col] == 0)
 				color = System::Drawing::Color::FromArgb(255, 255, 255);
 
 			else if (classificationImage[row * Width + col] == 1)
 				color = System::Drawing::Color::FromArgb(0, 255, 0);
 
-			else if (valueSearch(tagVector, classificationImage[row * Width + col]))
+			else if (isExistValue(tagVector, classificationImage[row * Width + col]))
 			{
 				int colorValue = tagColorVector[vecValueIndex(tagVector, classificationImage[row * Width + col])] % 255;
 				color = System::Drawing::Color::FromArgb(colorValue, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);
-				/*color = System::Drawing::Color::FromArgb((colorValue * classificationImage[row * Width + col]) % 255, (colorValue * colorValue) % 255, (colorValue * colorValue * colorValue) % 255);*/
 			}
 
-			// setpixel ise col row ve color bilgilerini ilgili bitmap matrise atar 
 			bitmapSurface->SetPixel(col, row, color);
 		}
 	}
@@ -500,18 +477,6 @@ int vecValueIndex(std::vector <int>& vec, int value)
 	return -1;
 }
 
-int vecValueIndexDouble(std::vector <double>& vec, double value)
-{
-	for (int i = 0; i < vec.size(); i++)
-	{
-		if (vec[i] == value)
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
 int vecMinValue(std::vector <int>& vec)
 {
 	int min = vec[0];
@@ -526,18 +491,20 @@ int vecMinValue(std::vector <int>& vec)
 	return min;
 }
 
-double vecMinValueDouble(std::vector <double>& vec)
+int vecMinValueIndex(std::vector <double>& vec)
 {
 	double min = vec[0];
+	int index = 0;
 	for (int i = 0; i < vec.size(); i++)
 	{
 		if (vec[i] < min)
 		{
 			min = vec[i];
+			index = i;
 		}
 	}
 
-	return min;
+	return index;
 }
 
 int histMinValueIndex(int* arry, int arry_size)
@@ -562,7 +529,7 @@ int histMaxValueIndex(int* arry, int arry_size)
 	}
 }
 
-bool doubleValueSearch(std::vector <int>& vec, int value1, int value2)
+bool isExistDoubleValue(std::vector <int>& vec, int value1, int value2)
 {
 	for (int index = 0; index < vec.size(); index += 2)
 	{
@@ -572,7 +539,7 @@ bool doubleValueSearch(std::vector <int>& vec, int value1, int value2)
 	return false;
 }
 
-bool valueSearch(std::vector <int>& vec, int value)
+bool isExistValue(std::vector <int>& vec, int value)
 {
 	for (int index = 0; index < vec.size(); index++)
 	{
@@ -593,7 +560,7 @@ int vecClear(std::vector <int>& collisionTags, std::vector <int>& temp)
 		}
 		else
 		{
-			if (!valueSearch(temp, collisionTags[i]) && valueSearch(temp, collisionTags[i + 1]))
+			if (!isExistValue(temp, collisionTags[i]) && isExistValue(temp, collisionTags[i + 1]))
 			{
 				temp.push_back(collisionTags[i]);
 				int tempSize = 0;
@@ -603,10 +570,10 @@ int vecClear(std::vector <int>& collisionTags, std::vector <int>& temp)
 
 					for (int j = 0; j < i; j += 2)
 					{
-						if (!valueSearch(temp, collisionTags[j]) && valueSearch(temp, collisionTags[j + 1]))
+						if (!isExistValue(temp, collisionTags[j]) && isExistValue(temp, collisionTags[j + 1]))
 							temp.push_back(collisionTags[j]);
 
-						else if (valueSearch(temp, collisionTags[j]) && !valueSearch(temp, collisionTags[j + 1]))
+						else if (isExistValue(temp, collisionTags[j]) && !isExistValue(temp, collisionTags[j + 1]))
 							temp.push_back(collisionTags[j + 1]);
 
 					}
@@ -614,7 +581,7 @@ int vecClear(std::vector <int>& collisionTags, std::vector <int>& temp)
 				} while (temp.size() != tempSize);
 
 			}
-			else if (valueSearch(temp, collisionTags[i]) && !valueSearch(temp, collisionTags[i + 1]))
+			else if (isExistValue(temp, collisionTags[i]) && !isExistValue(temp, collisionTags[i + 1]))
 			{
 				temp.push_back(collisionTags[i + 1]);
 				int tempSize = 0;
@@ -624,10 +591,10 @@ int vecClear(std::vector <int>& collisionTags, std::vector <int>& temp)
 
 					for (int j = 0; j < i; j += 2)
 					{
-						if (!valueSearch(temp, collisionTags[j]) && valueSearch(temp, collisionTags[j + 1]))
+						if (!isExistValue(temp, collisionTags[j]) && isExistValue(temp, collisionTags[j + 1]))
 							temp.push_back(collisionTags[j]);
 
-						else if (valueSearch(temp, collisionTags[j]) && !valueSearch(temp, collisionTags[j + 1]))
+						else if (isExistValue(temp, collisionTags[j]) && !isExistValue(temp, collisionTags[j + 1]))
 							temp.push_back(collisionTags[j + 1]);
 
 					}
@@ -639,7 +606,7 @@ int vecClear(std::vector <int>& collisionTags, std::vector <int>& temp)
 	}
 	for (int i = 0; i < temp.size(); i++)
 	{
-		while (valueSearch(collisionTags, temp[i]))
+		while (isExistValue(collisionTags, temp[i]))
 		{
 			collisionTags.erase(collisionTags.begin() + vecValueIndex(collisionTags, temp[i]));
 		}
@@ -650,11 +617,11 @@ int vecClear(std::vector <int>& collisionTags, std::vector <int>& temp)
 
 void CConnectivityAnalysis8N(int* binaryImage, int Width, int Height, std::vector <int>& tagCounterVec)
 {
-	int StructureElementSize = 3;
-	int locationSet = (StructureElementSize - 1) / 2;
+	int ElementSize = 3;
+	int locationSet = (ElementSize - 1) / 2;
 
 	int tagCounter = 1;
-	int counter = 0;
+	int counter = 0;											// collision sayisi
 	std::vector <int> tagVector;
 
 	std::vector <int> collisionTags;
@@ -666,17 +633,18 @@ void CConnectivityAnalysis8N(int* binaryImage, int Width, int Height, std::vecto
 		{
 			if (binaryImage[row * Width + col] == 1)
 			{
-				for (int i = 0; i < StructureElementSize; i++)
+																	// Komsularda 1/0 dan farkli etiket varsa ve daha onceden tagVector e eklenmemisse o etiketi ekle
+				for (int i = 0; i < ElementSize; i++)
 				{
-					for (int j = 0; j < StructureElementSize; j++)
+					for (int j = 0; j < ElementSize; j++)
 					{
 						if (binaryImage[(row - locationSet + i) * Width + col - locationSet + j] != 0 && binaryImage[(row - locationSet + i) * Width + col - locationSet + j] != 1)
 						{
-							if (!valueSearch(tagVector, binaryImage[(row - locationSet + i) * Width + col - locationSet + j]))
+							if (!isExistValue(tagVector, binaryImage[(row - locationSet + i) * Width + col - locationSet + j]))
 							{
 								counter++;
 								tagVector.push_back(binaryImage[(row - locationSet + i) * Width + col - locationSet + j]);
-								if (counter == 2)
+								if (counter == 2)					// tek seferdeki collison miktari mak 2 tane
 									break;
 							}
 						}
@@ -687,20 +655,20 @@ void CConnectivityAnalysis8N(int* binaryImage, int Width, int Height, std::vecto
 
 				switch (counter)
 				{
-				case 0:
+				case 0:															// collsiion yok ise o etiketi dogrudan tagVector e ekle ve image i etiketle
 					tagCounter++;
 					tagCounterVec.push_back(tagCounter);
 					binaryImage[row * Width + col] = tagCounter;
 					break;
 
-				case 1:
+				case 1:															// 1 collision varsa, collsion degeri ile image i etiketle
 					binaryImage[row * Width + col] = tagVector[0];
 					break;
 
-				case 2:
+				case 2:															// 2 collsiion varsa, 2 collision dan 1 ini ver
 					binaryImage[row * Width + col] = tagVector[1];
-
-					if (!doubleValueSearch(collisionTags, tagVector[0], tagVector[1]) && !doubleValueSearch(collisionTags, tagVector[1], tagVector[0]))
+																				// 2 collsiion degeri de onceki collsion etiketleri arasinda yoksa ekle
+					if (!isExistDoubleValue(collisionTags, tagVector[0], tagVector[1]) && !isExistDoubleValue(collisionTags, tagVector[1], tagVector[0]))
 					{
 						collisionTags.push_back(tagVector[0]);
 						collisionTags.push_back(tagVector[1]);
@@ -716,20 +684,22 @@ void CConnectivityAnalysis8N(int* binaryImage, int Width, int Height, std::vecto
 		}
 	}
 
-	std::vector <int> temp;
-
+	std::vector <int> temp;									// Yer deistirilecek etiketleri tutar
+															// Collision etiketleri, min etiket ile yer degistirilir
 	while (collisionTags.size() > 0)
 	{
+															// Her seferinde collision etiketleri guncellenir
 		int minValue = vecClear(collisionTags, temp);
 
 		temp.erase(temp.begin() + vecValueIndex(temp, minValue));
 
 		for (int i = 0; i < temp.size(); i++)
 		{
-			if (valueSearch(tagCounterVec, temp[i]))
+			if (isExistValue(tagCounterVec, temp[i]))
 			{
 				tagCounterVec.erase(tagCounterVec.begin() + vecValueIndex(tagCounterVec, temp[i]));
 			}
+															// collision degerlerinin tumunu, minValue ile degistir
 			for (int row = locationSet; row < Height - locationSet; row++)
 			{
 				for (int col = locationSet; col < Width - locationSet; col++)
@@ -871,3 +841,79 @@ void deepCopyArray(int* array1, int Width, int Height, int* array2)
 	}
 }
 
+void saveDataBase(std::string databaseFileName, int* binaryImage, int width, std::vector<int>& tagCoordVector, std::string objectName)
+{
+	std::ofstream outFile;
+	outFile.open(databaseFileName, std::ios::app);
+
+	int* cutBinaryImage;
+	std::vector <double> Qvalues;
+																	// her etiketlenen cismin icin tekrarla
+	for (int i = 0; i < tagCoordVector.size(); i += 4)
+	{
+																	// tespit icin kirpilacak goruntu boyutu degiskenleri
+		int cutWidth = 0;
+		int cutHeight = 0;
+																	// tespit edilen cismin etiket koordinatlarini kullanarak, CCA uygulanmamis goruntu uzerinde kirp
+		cutBinaryImage = binaryImageCut(binaryImage, width, tagCoordVector[i], tagCoordVector[i + 1], tagCoordVector[i + 2], tagCoordVector[i + 3], cutWidth, cutHeight);
+
+																	// Moment hesapla
+		calculateQ(cutBinaryImage, cutWidth, cutHeight, Qvalues);
+																	// 7 Q Moment degerini dosyaya yaz
+		for (int i = 0; i < 7; i++)
+		{
+			outFile << Qvalues[i] << " ";
+		}
+
+		outFile << objectName << std::endl;
+		Qvalues.clear();
+	}
+	outFile.close();
+}
+
+void readDataBase(std::string databaseName, std::vector <double>& objectQValues, std::vector <std::string>& objectTagNames)
+{
+	std::string QValue;
+	std::string objectName;
+	std::ifstream inFile;
+	
+	inFile.open(databaseName);
+															// dosyadaki tum training sonuclarini oku
+	while (true)
+	{
+		for (int i = 0; i < 7; i++)
+		{
+			inFile >> QValue;
+			if (inFile.eof())break;
+			objectQValues.push_back(std::stod(QValue));		// objectQValues -> her nesne icin 7 adet Q degeri depolar (stod -> convert str to double)
+		}
+
+		inFile >> objectName;
+		if (inFile.eof())break;
+		objectTagNames.push_back(objectName);				// objectTagNames -> her nesnenin ismini depolar
+	}
+	inFile.close();
+
+}
+
+double matching(std::vector <double>& objectQValues, std::vector <double>& QVector)
+{
+	std::vector <double> diffVec;
+
+	double diffSum = 0.0;
+	for (int i = 0; i < objectQValues.size(); i += 7)
+	{
+		diffSum += System::Math::Abs(objectQValues[i] - QVector[0]);
+		diffSum += System::Math::Abs(objectQValues[i + 1] - QVector[1]);
+		diffSum += System::Math::Abs(objectQValues[i + 2] - QVector[2]);
+		diffSum += System::Math::Abs(objectQValues[i + 3] - QVector[3]);
+		diffSum += System::Math::Abs(objectQValues[i + 4] - QVector[4]);
+		diffSum += System::Math::Abs(objectQValues[i + 5] - QVector[5]);
+		diffSum += System::Math::Abs(objectQValues[i + 6] - QVector[6]);
+
+														// Hesaplanan Q degerleri ile db daki her nesne icin farklarini depola
+		diffVec.push_back(diffSum);
+		diffSum = 0.0;
+	}
+	return  vecMinValueIndex(diffVec);					// Cismin Q degerleri ile db daki farki min olan degerin indexini dondur
+}

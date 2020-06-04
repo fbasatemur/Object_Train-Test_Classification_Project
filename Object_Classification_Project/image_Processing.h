@@ -3,6 +3,9 @@
 #include <vector>
 #include <atlstr.h>	
 
+#include <iostream>
+#include <fstream>
+#include <vector>
 
 int* createHistMatris(BYTE*, int, int);
 
@@ -14,9 +17,7 @@ void tagHistMahalonobis(int* tagArray, int T1, int T2);
 
 void tagHistEuclidean(int* tagArray, int T1, int T2);
 
-int* kMeansEuclidean(int* hist, std::vector <int>* vec, int T1 = 0, int T2 = 0);
-
-int* kMeansMahalonobis(int* hist, std::vector <int>* vec, int T1 = 0, int T2 = 0);
+int* KMeans(int* hist, std::vector <int>* vec, int T1, int T2, bool distanceFlag);
 
 int* dilationBinary(int* p, int W, int H, int* M, int K);
 
@@ -42,19 +43,17 @@ int* addZeroPadding(int* cnv, int& Width, int& Height, int structureElementSize)
 
 int vecValueIndex(std::vector <int>& vec, int value);
 
-int vecValueIndexDouble(std::vector <double>& vec, double value);
-
 int vecMinValue(std::vector <int>& vec);
 
-double vecMinValueDouble(std::vector <double>& vec);
+int vecMinValueIndex(std::vector <double>& vec);
 
 int histMinValueIndex(int* arry, int arry_size);
 
 int histMaxValueIndex(int* arry, int arry_size);
 
-bool doubleValueSearch(std::vector <int>& vec, int value1, int value2);
+bool isExistDoubleValue(std::vector <int>& vec, int value1, int value2);
 
-bool valueSearch(std::vector <int>& vec, int value);
+bool isExistValue(std::vector <int>& vec, int value);
 
 int vecClear(std::vector <int>&, std::vector <int>&);
 
@@ -75,3 +74,10 @@ void  calculateQ(int* binaryImage, int Width, int Height, std::vector <double>& 
 int* binaryImageCut(int* binaryImage, int Width, int startCol, int startRow, int stopCol, int stopRow, int& newWidth, int& newHeight);
 
 void deepCopyArray(int* array1, int Width, int Height, int* array2);
+
+void saveDataBase(std::string databaseFileName, int* binaryImage, int width, std::vector<int>& tagCoordVector, std::string objectName);
+
+void readDataBase(std::string databaseName, std::vector <double>& objectQValues, std::vector <std::string>& objectTagNames);
+
+double matching(std::vector <double>& objectQValues, std::vector <double>& QVector);
+
