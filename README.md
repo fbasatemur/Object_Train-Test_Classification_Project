@@ -48,3 +48,16 @@ GUI: CLR
         - 16.3.2.	Çıkarılan nesne için Feature extraction işlemi yap
         - 16.3.3.	DataBase üzerindeki sonuçlar ile Matching yap
         - 16.3.4.	En benzer olan nesne ismini, kendi rengi ile richTextBox’ a (tespit edilen nesneler listesine) ekle
+  
+# Sample Screenshots
+- Sample 1 is lentil test
+  - ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/lentil_test.jpg "Lentil Test")
+  
+- Sample 2 is lentil train 
+  - ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/lentil_train.jpg "Lentil Train")
+  
+- Sample 3 is many objects detection with Euclidean Distance
+  - ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/many_objects_test_euclidean.jpg "Many objects detection with Euclidean Distance")
+  
+- Sample 4 is many objects detection with Mahalonobis Distance
+  - ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/many_objects_test_mahalonobis.jpg "Many objects detection with Mahalonobis Distance")
