@@ -1,63 +1,53 @@
-# Object_Train-Test_Classification_Project
+# Unsupervised Learning Classification
 
-Programmig Language: C++
-GUI: CLR
+Programmig Language: C++/CLR
 
-------------------------------------------
 ## Destination:
- - Bir görüntü üzerinde K-Means algoritmasını kullanarak her bir nesnenin belirlenmesi ve belirlenen her nesnenin feature extraction sonucu nesne tespitidir. 
+Determination of each object using the K-Means algorithm on an image and the result of the feature extraction of each determined object is the object detection. 
+First, an entrance image is taken and **Trained**. After that, "db.txt" is used for the **Test** process and the classification process is done.
  
 ## Techniques:
-- Input olarak alinan Bitmap goruntusu uzerinde ilk olarak Train islemlerini yaparak daha sonrasinda ise Test islemi ile moment degerleri hesaplanan nesnenin db.txt uzerinden classification islemi yapilir.
-- Classification alg olarak Unsupervised Learning algoritmalarindan olan K-Means algoritmasi kullanildi.
-- K-Means, Threashold degerlerine olan distance hesaplanmasinda Euclidean veya Mahalonobis distance opsiyonel olarak kullanilabilir. 
-- Gurultu azaltmak icin :
+- K-Means algorithm was used for Unsupervised Learning Classification.
+- Euclidean or Mahalanobis distance calculation methods can be used for the K-means algorithm.
+- For noise reduction :
     - Mean Filter
-    - Morphology -> Opening ( Erosion/Dilation ) uygulandi.
-- Component Connectivity Analysis islemi 8 Neighbors -> Structure Element ile yapildi.
-- Future space, 7 seviyeli moment hesaplamasindan olusur.
+    - Morphology -> Opening ( Erosion/Dilation )
+- Component Connectivity Analysis process is done with 8 Neighbors (Structure Element).
+- Feature extraction, 7-level moment is calculated.
 
 ## Steps:
-1.	Raw_intensity image üzerine Mean Filter uygula
-2.	Histogram matrisini oluştur ve chart ile göster
-3.	Distance seçeneği:
-    - 3.1.	Euclidean Dist ya da Mahalonobis Dist seç
-    - 3.2.	Seçilen Dist türüne göre KMeans algoritmasını kullan 
-4.	KMeans sonucunu ekranda göster
-5.	KMeans ile elde edilen threshold değerlerine göre 1/0 Binary dönüşümü yap.
-6.	Binary image üzerinde arkaplanı 0, nesneleri 1 olarak işaretle
-7.	Morphology adımı:
-    - 7.1.	Binary image üzerine Erosion uygula
-    - 7.2.	Erosion sonucuna Dilation uygula ve Opening uygulanmıştır.
-8.	Morphology sonucunu (Opening işlemi) ekranda göster
-9.	Opsiyonel olarak Zero Padding uygula ya da uygulama.
-10.	Tüm bu sonuçları içeren matrisi sonra kullanmak üzere kopyala (Deep Copy)
-11.	8 Komşuluklu CConnectivityAnalysis aşamasında nesne etiketlendirme işlemi yapılır.
-12.	CConnectivityAnalysis sonucunu ekranda göster
-13.	Etikenlenmiş görüntü üzerinde Bounding Box işlemini yapılır (drawRectangle)
-14.	drawRectangle sonucunu ekranda göster
-15.	TRAINING Aşaması:
-    - 15.1.	Nesne ismini textBox dan al
-    - 15.2.	Box içerisine alımış her nesne için (SaveDataBase içerisinde) Feature Extraction işlemini yap (7 Seviyeli Moment hesabı)
-    - 15.3.	DataBase’ e kaydet
-16.	TEST Aşaması:
-    - 16.1.	Görüntü üzerindeki etiket (object) sayısı kadar renk hesaplaması yap
-    - 16.2.	DataBase’ den Train edilmiş Moment değerlerini ve object isimleri al
-    - 16.3.	Tespit edilen her nesne için:
-        - 16.3.1.	Görüntü üzerinden o nesneyi başka bir matrise kes
-        - 16.3.2.	Çıkarılan nesne için Feature extraction işlemi yap
-        - 16.3.3.	DataBase üzerindeki sonuçlar ile Matching yap
-        - 16.3.4.	En benzer olan nesne ismini, kendi rengi ile richTextBox’ a (tespit edilen nesneler listesine) ekle
+1.	Apply Mean Filter to input image
+2.	KMeans algorithm apply
+3.	The background of the result image is set to 0; make foreground 1 (It's now binary image)
+4.	Morphology steps:
+    - 4.1.	Apply Erosion on Binary image
+    - 4.2.	Apply Dilation and Opening process completed.
+5.	Object labeling is done with the Component Connectivity Analysis process.
+6.	Bounding boxes are apply to labelled images (drawRectangle)
+7.	TRAINING Steps:
+    - 7.1.	Get object name from ** TextBox **
+    - 7.2.	Perform Feature Extraction for each object enclosed in Bounding boxes. (7-level moment)
+    - 7.3.	Save in "db.txt"
+8.	TEST Steps:
+    - 8.2.	Get moment values and object names in "db.txt"
+    - 8.3.	For each detected object:
+        - 8.3.1.	Apply Feature extraction process
+        - 8.3.2.	Match the values in "db.txt"
+        - 8.3.3.	Add the most similar objects to "RichTextBox" with their own color
   
 # Sample Screenshots
-- Sample 1 is lentil test
-  - ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/lentil_test.jpg "Lentil Test")
+Sample 1 is lentil test
+
+   ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/lentil_test.jpg "Lentil Test")
   
-- Sample 2 is lentil train 
-  - ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/lentil_train.jpg "Lentil Train")
+Sample 2 is lentil train 
+
+   ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/lentil_train.jpg "Lentil Train")
   
-- Sample 3 is many objects detection with Euclidean Distance
-  - ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/many_objects_test_euclidean.jpg "Many objects detection with Euclidean Distance")
+Sample 3 is many objects detection with Euclidean Distance
+
+   ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/many_objects_test_euclidean.jpg "Many objects detection with Euclidean Distance")
   
-- Sample 4 is many objects detection with Mahalonobis Distance
-  - ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/many_objects_test_mahalonobis.jpg "Many objects detection with Mahalonobis Distance")
+Sample 4 is many objects detection with Mahalonobis Distance
+
+   ![alt text](https://github.com/fbasatemur/Object_Train-Test_Classification_Project/blob/add-license-1/screenshots/many_objects_test_mahalonobis.jpg "Many objects detection with Mahalonobis Distance")
